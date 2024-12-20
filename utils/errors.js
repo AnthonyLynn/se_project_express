@@ -1,0 +1,7 @@
+module.exports = {
+  OK_CODE: 200,
+  CREATED_CODE: 201,
+  BAD_REQUEST_CODE: 400,
+  NOT_FOUND_CODE: 404,
+  SERVER_ERROR_CODE: 500,
+};

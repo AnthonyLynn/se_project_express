@@ -1,7 +1,5 @@
 const {
   SERVER_ERROR_CODE,
-  OK_CODE,
-  CREATED_CODE,
   BAD_REQUEST_CODE,
   NOT_FOUND_CODE,
 } = require("./errors");

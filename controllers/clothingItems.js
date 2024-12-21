@@ -1,29 +1,13 @@
 const ClothingItem = require("../models/clothingItem");
-const {
-  SERVER_ERROR_CODE,
-  OK_CODE,
-  CREATED_CODE,
-  BAD_REQUEST_CODE,
-  NOT_FOUND_CODE,
-} = require("../utils/errors");
-const {
-  checkDocumentNotFound,
-  checkValidationError,
-  checkCastError,
-  getServerError,
-} = require("../utils/checkError");
-
-// I noticed a pattern of error checks given the context their used.
-// when finding an object, cast, and notFound errors can occur;
-// when creating, validation errors. All end in server error checks.
-// Would it be a good idea to group these into their own functions?
+const { OK_CODE, CREATED_CODE } = require("../utils/errors");
+const checkError = require("../utils/checkError");
 
 function getClothingItems(req, res) {
   ClothingItem.find({})
     .then((clothingItems) => res.status(OK_CODE).send({ data: clothingItems }))
     .catch((err) => {
       console.error(err);
-      return getServerError(err, res);
+      return checkError(err, res);
     });
 }
 
@@ -37,7 +21,7 @@ function createClothingItem(req, res) {
     )
     .catch((err) => {
       console.error(err);
-      return checkValidationError(err, res) || getServerError(err, res);
+      return checkError(err, res);
     });
 }
 
@@ -49,11 +33,7 @@ function deleteClothingItem(req, res) {
     .then((clothingItem) => res.status(OK_CODE).send({ data: clothingItem }))
     .catch((err) => {
       console.error(err);
-      return (
-        checkCastError(err, res) ||
-        checkDocumentNotFound(err, res) ||
-        getServerError(err, res)
-      );
+      return checkError(err, res);
     });
 }
 
@@ -70,12 +50,7 @@ function likeClothingItem(req, res) {
     .then((clothingItem) => res.status(OK_CODE).send({ data: clothingItem }))
     .catch((err) => {
       console.error(err);
-
-      return (
-        checkCastError(err, res) ||
-        checkDocumentNotFound(err, res) ||
-        getServerError(err, res)
-      );
+      checkError(err, res);
     });
 }
 
@@ -90,12 +65,7 @@ function dislikeClothingItem(req, res) {
     })
     .catch((err) => {
       console.error(err);
-
-      return (
-        checkCastError(err, res) ||
-        checkDocumentNotFound(err, res) ||
-        getServerError(err, res)
-      );
+      checkError(err, res);
     });
 }
 

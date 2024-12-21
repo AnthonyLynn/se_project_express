@@ -1,18 +1,13 @@
 const User = require("../models/user");
 const { OK_CODE, CREATED_CODE } = require("../utils/errors");
-const {
-  checkDocumentNotFound,
-  checkValidationError,
-  checkCastError,
-  getServerError,
-} = require("../utils/checkError");
+const checkError = require("../utils/checkError");
 
 function getUsers(req, res) {
   User.find({})
     .then((users) => res.status(OK_CODE).send({ data: users }))
     .catch((err) => {
       console.error(err);
-      return getServerError(err, res);
+      return checkError(err, res);
     });
 }
 
@@ -24,12 +19,7 @@ function getUser(req, res) {
     .then((user) => res.status(OK_CODE).send({ data: user }))
     .catch((err) => {
       console.error(err);
-
-      return (
-        checkDocumentNotFound(err, res) ||
-        checkCastError(err, res) ||
-        getServerError(err, res)
-      );
+      return checkError(err, res);
     });
 }
 
@@ -40,7 +30,7 @@ function createUser(req, res) {
     .then((user) => res.status(CREATED_CODE).send({ data: user }))
     .catch((err) => {
       console.error(err);
-      return checkValidationError(err, res) || getServerError(err, res);
+      return checkError(err, res);
     });
 }
 

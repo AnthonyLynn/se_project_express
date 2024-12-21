@@ -13,7 +13,7 @@ const clothingItemSchema = new mongoose.Schema({
     type: String,
     enum: ["hot", "warm", "cold"],
   },
-  imageURL: {
+  imageUrl: {
     required: true,
     type: String,
     // TODO: Duplicate code in both user and clothing items; may be able to shorten or share logic.

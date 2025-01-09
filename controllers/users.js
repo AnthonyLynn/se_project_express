@@ -1,7 +1,7 @@
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const User = require("../models/user");
-const { OK_CODE, CREATED_CODE } = require("../utils/errors");
+const { OK_CODE, CREATED_CODE, CONFLICT_CODE } = require("../utils/errors");
 const checkError = require("../utils/checkError");
 const { JWT_SECRET } = require("../utils/config");
 
@@ -48,7 +48,7 @@ function createUser(req, res) {
       console.error(err);
       if (err.code === 11000) {
         return res
-          .status(409)
+          .status(CONFLICT_CODE)
           .send({ message: "User with the same email already exists" });
       }
       return checkError(err, res);

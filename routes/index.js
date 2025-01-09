@@ -11,7 +11,9 @@ router.use("/items", clothingItemRouter);
 router.use("/users", userRouter);
 
 router.use((req, res) =>
-  res.status(NOT_FOUND_CODE).send({ message: "internal server error" })
+  res
+    .status(NOT_FOUND_CODE)
+    .send({ message: "An error has occurred on the server." })
 );
 
 module.exports = router;

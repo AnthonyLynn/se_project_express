@@ -16,7 +16,6 @@ const clothingItemSchema = new mongoose.Schema({
   imageUrl: {
     required: true,
     type: String,
-    // TODO: Duplicate code in both user and clothing items; may be able to shorten or share logic.
     validate: {
       validator: (value) => validator.isURL(value),
       message: "You must enter a valid URL",

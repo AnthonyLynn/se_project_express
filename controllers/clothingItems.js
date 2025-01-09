@@ -30,6 +30,13 @@ function deleteClothingItem(req, res) {
 
   ClothingItem.findByIdAndRemove(id)
     .orFail()
+    .then((clothingItem) => {
+      if (!clothingItem.owner.equals(req.user._id)) {
+        const error = new Error("Item doesn't belong to logged in user");
+        error.name = "PermisionDenied";
+        return Promise.reject(error);
+      }
+    })
     .then((clothingItem) => res.status(OK_CODE).send({ data: clothingItem }))
     .catch((err) => {
       console.error(err);

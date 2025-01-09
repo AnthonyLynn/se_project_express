@@ -1,9 +1,9 @@
+const jwt = require("jsonwebtoken");
+const bcrypt = require("bcryptjs");
 const User = require("../models/user");
 const { OK_CODE, CREATED_CODE } = require("../utils/errors");
 const checkError = require("../utils/checkError");
 const { JWT_SECRET } = require("../utils/config");
-const jwt = require("jsonwebtoken");
-const bcrypt = require("bcryptjs");
 
 function getUsers(req, res) {
   User.find({})
@@ -33,9 +33,9 @@ function createUser(req, res) {
     .hash(password, 10)
     .then((hash) =>
       User.create({
-        email: email,
-        avatar: avatar,
-        name: name,
+        email,
+        avatar,
+        name,
         password: hash,
       })
     )
@@ -78,7 +78,7 @@ function updateUser(req, res) {
 
   User.findByIdAndUpdate(
     _id,
-    { name: name, avatar: avatar },
+    { name, avatar },
     {
       new: true,
       runValidators: true,

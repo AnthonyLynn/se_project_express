@@ -36,8 +36,9 @@ function deleteClothingItem(req, res) {
         error.name = "PermisionDenied";
         return Promise.reject(error);
       }
+
+      return res.status(OK_CODE).send({ data: clothingItem });
     })
-    .then((clothingItem) => res.status(OK_CODE).send({ data: clothingItem }))
     .catch((err) => {
       console.error(err);
       return checkError(err, res);

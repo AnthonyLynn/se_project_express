@@ -9,12 +9,9 @@ const {
 const authroize = require("../middlewares/auth");
 
 router.get("/", getClothingItems);
-
-router.use(authroize);
-
-router.post("/", createClothingItem);
-router.delete("/:itemId", deleteClothingItem);
-router.put("/:itemId/likes", likeClothingItem);
-router.delete("/:itemId/likes", dislikeClothingItem);
+router.post("/", authroize, createClothingItem);
+router.delete("/:itemId", authroize, deleteClothingItem);
+router.put("/:itemId/likes", authroize, likeClothingItem);
+router.delete("/:itemId/likes", authroize, dislikeClothingItem);
 
 module.exports = router;

@@ -1,25 +1,16 @@
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const User = require("../models/user");
-const { OK_CODE, CREATED_CODE, CONFLICT_CODE } = require("../utils/errors");
+const { CREATED_CODE, CONFLICT_CODE } = require("../utils/errors");
 const checkError = require("../utils/checkError");
 const { JWT_SECRET } = require("../utils/config");
-
-function getUsers(req, res) {
-  User.find({})
-    .then((users) => res.status(OK_CODE).send({ data: users }))
-    .catch((err) => {
-      console.error(err);
-      return checkError(err, res);
-    });
-}
 
 function getCurrentUser(req, res) {
   const { _id } = req.user;
 
   User.findById(_id)
     .orFail()
-    .then((user) => res.status(OK_CODE).send({ data: user }))
+    .then((user) => res.send({ data: user }))
     .catch((err) => {
       console.error(err);
       return checkError(err, res);
@@ -85,7 +76,7 @@ function updateUser(req, res) {
     }
   )
     .orFail()
-    .then((user) => res.status(OK_CODE).send({ data: user }))
+    .then((user) => res.send({ data: user }))
     .catch((err) => {
       console.error(err);
       return checkError(err, res);
@@ -93,7 +84,6 @@ function updateUser(req, res) {
 }
 
 module.exports = {
-  getUsers,
   getCurrentUser,
   createUser,
   login,

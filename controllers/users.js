@@ -33,7 +33,12 @@ function createUser(req, res) {
     .then((user) => {
       const userObj = user.toObject();
       delete userObj.password;
-      res.status(CREATED_CODE).send({ data: userObj });
+      res.status(CREATED_CODE).send({
+        token: jwt.sign({ _id: user._id }, JWT_SECRET, {
+          expiresIn: "7d",
+        }),
+        user: userObj,
+      });
     })
     .catch((err) => {
       console.error(err);
@@ -55,6 +60,7 @@ function login(req, res) {
         token: jwt.sign({ _id: user._id }, JWT_SECRET, {
           expiresIn: "7d",
         }),
+        user,
       });
     })
     .catch((err) => {

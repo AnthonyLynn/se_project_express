@@ -1,40 +1,37 @@
 const ClothingItem = require("../models/clothingItem");
-const { CREATED_CODE } = require("../utils/errors");
-const checkError = require("../utils/checkError");
+const UnathorizedError = require("../errors/unathorized-err");
+const BadRequestError = require("../errors/bad-request-err");
+const DocumentNotFoundError = require("../errors/not-found-err");
+const ForbiddenError = require("../errors/forbidden-err");
 
-function getClothingItems(req, res) {
+function getClothingItems(req, res, next) {
   ClothingItem.find({})
     .then((clothingItems) => res.send({ data: clothingItems }))
-    .catch((err) => {
-      console.error(err);
-      return checkError(err, res);
-    });
+    .catch(next);
 }
 
-function createClothingItem(req, res) {
+function createClothingItem(req, res, next) {
   const { name, weather, imageUrl } = req.body;
   const owner = req.user._id;
 
   ClothingItem.create({ name, weather, imageUrl, owner })
-    .then((clothingItem) =>
-      res.status(CREATED_CODE).send({ data: clothingItem })
-    )
+    .then((clothingItem) => res.status(201).send({ data: clothingItem }))
     .catch((err) => {
-      console.error(err);
-      return checkError(err, res);
+      if (err.name == "ValidationError") {
+        return next(new BadRequestError(err.message));
+      }
+      next(err);
     });
 }
 
-function deleteClothingItem(req, res) {
+function deleteClothingItem(req, res, next) {
   const id = req.params.itemId;
 
   ClothingItem.findById(id)
     .orFail()
     .then((clothingItem) => {
       if (String(clothingItem.owner) !== req.user._id) {
-        const error = new Error("Item doesn't belong to logged in user");
-        error.name = "PermisionDenied";
-        return Promise.reject(error);
+        throw new ForbiddenError("Item doesn't belong to logged in user");
       }
 
       return clothingItem
@@ -42,12 +39,17 @@ function deleteClothingItem(req, res) {
         .then(() => res.send({ message: "Successfully deleted" }));
     })
     .catch((err) => {
-      console.error(err);
-      return checkError(err, res);
+      if (err.name == "CastError") {
+        return next(new BadRequestError(err.message));
+      }
+      if (err.name == "DocumentNotFoundError") {
+        return next(new DocumentNotFoundError(err.message));
+      }
+      next(err);
     });
 }
 
-function likeClothingItem(req, res) {
+function likeClothingItem(req, res, next) {
   const id = req.params.itemId;
   const owner = req.user._id;
 
@@ -59,12 +61,17 @@ function likeClothingItem(req, res) {
     .orFail()
     .then((clothingItem) => res.send({ data: clothingItem }))
     .catch((err) => {
-      console.error(err);
-      checkError(err, res);
+      if (err.name == "CastError") {
+        return next(new BadRequestError(err.message));
+      }
+      if (err.name == "DocumentNotFoundError") {
+        return next(new DocumentNotFoundError(err.message));
+      }
+      next(err);
     });
 }
 
-function dislikeClothingItem(req, res) {
+function dislikeClothingItem(req, res, next) {
   const id = req.params.itemId;
   const owner = req.user._id;
 
@@ -72,8 +79,13 @@ function dislikeClothingItem(req, res) {
     .orFail()
     .then((clothingItem) => res.send({ data: clothingItem }))
     .catch((err) => {
-      console.error(err);
-      checkError(err, res);
+      if (err.name == "CastError") {
+        return next(new BadRequestError(err.message));
+      }
+      if (err.name == "DocumentNotFoundError") {
+        return next(new DocumentNotFoundError(err.message));
+      }
+      next(err);
     });
 }
 

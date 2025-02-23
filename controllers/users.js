@@ -1,23 +1,21 @@
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const User = require("../models/user");
-const { CREATED_CODE, CONFLICT_CODE } = require("../utils/errors");
-const checkError = require("../utils/checkError");
+const BadRequestError = require("../errors/bad-request-err");
+const ConflictError = require("../errors/conflict-err");
+const UnauthorizedError = require("../errors/unathorized-err");
 const { JWT_SECRET } = require("../utils/config");
 
-function getCurrentUser(req, res) {
+function getCurrentUser(req, res, next) {
   const { _id } = req.user;
 
   User.findById(_id)
     .orFail()
     .then((user) => res.send({ data: user }))
-    .catch((err) => {
-      console.error(err);
-      return checkError(err, res);
-    });
+    .catch(next);
 }
 
-function createUser(req, res) {
+function createUser(req, res, next) {
   const { name, avatar, email, password } = req.body;
 
   bcrypt
@@ -33,7 +31,7 @@ function createUser(req, res) {
     .then((user) => {
       const userObj = user.toObject();
       delete userObj.password;
-      res.status(CREATED_CODE).send({
+      res.status(201).send({
         token: jwt.sign({ _id: user._id }, JWT_SECRET, {
           expiresIn: "7d",
         }),
@@ -41,17 +39,19 @@ function createUser(req, res) {
       });
     })
     .catch((err) => {
-      console.error(err);
       if (err.code === 11000) {
-        return res
-          .status(CONFLICT_CODE)
-          .send({ message: "User with the same email already exists" });
+        return next(
+          new ConflictError("User with the same email already exists")
+        );
       }
-      return checkError(err, res);
+      if (err.name == "ValidationError") {
+        return next(new BadRequestError(err.message));
+      }
+      next(err);
     });
 }
 
-function login(req, res) {
+function login(req, res, next) {
   const { email, password } = req.body;
 
   User.findUserByCredentials(email, password)
@@ -64,12 +64,17 @@ function login(req, res) {
       });
     })
     .catch((err) => {
-      console.error(err);
-      return checkError(err, res);
+      if (err.name == "IncorrectCredentailsError") {
+        return next(new UnauthorizedError(err.message));
+      }
+      if (err.name == "MissingCredentailsError") {
+        return next(new BadRequestError(err.message));
+      }
+      next(err);
     });
 }
 
-function updateUser(req, res) {
+function updateUser(req, res, next) {
   const { _id } = req.user;
   const { name, avatar } = req.body;
 
@@ -83,10 +88,7 @@ function updateUser(req, res) {
   )
     .orFail()
     .then((user) => res.send({ data: user }))
-    .catch((err) => {
-      console.error(err);
-      return checkError(err, res);
-    });
+    .catch(next);
 }
 
 module.exports = {

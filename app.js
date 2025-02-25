@@ -18,6 +18,14 @@ app.use(cors());
 app.use(helmet());
 app.use(express.json());
 app.use(requestLogger);
+
+// TODO: remove this after review
+app.get("/crash-test", () => {
+  setTimeout(() => {
+    throw new Error("Server will crash now");
+  }, 0);
+});
+
 app.use(routes);
 app.use(errorLogger);
 app.use(errors());

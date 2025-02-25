@@ -4,6 +4,7 @@ const User = require("../models/user");
 const BadRequestError = require("../errors/bad-request-err");
 const ConflictError = require("../errors/conflict-err");
 const UnauthorizedError = require("../errors/unathorized-err");
+const NotFoundError = require("../errors/not-found-err");
 const { JWT_SECRET } = require("../utils/config");
 
 function getCurrentUser(req, res, next) {
@@ -62,7 +63,6 @@ function login(req, res, next) {
         token: jwt.sign({ _id: user._id }, JWT_SECRET, {
           expiresIn: "7d",
         }),
-        user,
       });
     })
     .catch((err) => {
@@ -90,7 +90,15 @@ function updateUser(req, res, next) {
   )
     .orFail()
     .then((user) => res.send({ data: user }))
-    .catch(next);
+    .catch((err) => {
+      if (err.name === "ValidationError") {
+        return next(new BadRequestError("invalid data"));
+      }
+      if (err.name === "DocumentNotFoundError") {
+        return next(new NotFoundError(err.message));
+      }
+      return next(err);
+    });
 }
 
 module.exports = {

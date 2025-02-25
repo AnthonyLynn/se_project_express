@@ -10,7 +10,7 @@ router.post("/signup", createUser);
 router.use("/items", clothingItemRouter);
 router.use("/users", userRouter);
 
-router.use((req, res) => {
+router.use((req, res, next) => {
   next(new NotFoundError("The page doesn't exist"));
 });
 

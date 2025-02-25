@@ -18,8 +18,13 @@ function getCurrentUser(req, res, next) {
 function createUser(req, res, next) {
   const { name, avatar, email, password } = req.body;
 
-  bcrypt
-    .hash(password, 10)
+  User.findOne({ email })
+    .then((existingUser) => {
+      if (existingUser) {
+        throw new ConflictError("User with the same email already exists");
+      }
+      return bcrypt.hash(password, 10);
+    })
     .then((hash) =>
       User.create({
         email,
@@ -32,9 +37,6 @@ function createUser(req, res, next) {
       const userObj = user.toObject();
       delete userObj.password;
       res.status(201).send({
-        token: jwt.sign({ _id: user._id }, JWT_SECRET, {
-          expiresIn: "7d",
-        }),
         user: userObj,
       });
     })
@@ -44,10 +46,10 @@ function createUser(req, res, next) {
           new ConflictError("User with the same email already exists")
         );
       }
-      if (err.name == "ValidationError") {
+      if (err.name === "ValidationError") {
         return next(new BadRequestError(err.message));
       }
-      next(err);
+      return next(err);
     });
 }
 
@@ -64,13 +66,13 @@ function login(req, res, next) {
       });
     })
     .catch((err) => {
-      if (err.name == "IncorrectCredentailsError") {
+      if (err.name === "IncorrectCredentailsError") {
         return next(new UnauthorizedError(err.message));
       }
-      if (err.name == "MissingCredentailsError") {
+      if (err.name === "MissingCredentailsError") {
         return next(new BadRequestError(err.message));
       }
-      next(err);
+      return next(err);
     });
 }
 

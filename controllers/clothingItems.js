@@ -1,5 +1,4 @@
 const ClothingItem = require("../models/clothingItem");
-const UnathorizedError = require("../errors/unathorized-err");
 const BadRequestError = require("../errors/bad-request-err");
 const DocumentNotFoundError = require("../errors/not-found-err");
 const ForbiddenError = require("../errors/forbidden-err");
@@ -17,10 +16,10 @@ function createClothingItem(req, res, next) {
   ClothingItem.create({ name, weather, imageUrl, owner })
     .then((clothingItem) => res.status(201).send({ data: clothingItem }))
     .catch((err) => {
-      if (err.name == "ValidationError") {
+      if (err.name === "ValidationError") {
         return next(new BadRequestError(err.message));
       }
-      next(err);
+      return next(err);
     });
 }
 
@@ -39,13 +38,13 @@ function deleteClothingItem(req, res, next) {
         .then(() => res.send({ message: "Successfully deleted" }));
     })
     .catch((err) => {
-      if (err.name == "CastError") {
+      if (err.name === "CastError") {
         return next(new BadRequestError(err.message));
       }
-      if (err.name == "DocumentNotFoundError") {
+      if (err.name === "DocumentNotFoundError") {
         return next(new DocumentNotFoundError(err.message));
       }
-      next(err);
+      return next(err);
     });
 }
 
@@ -61,13 +60,13 @@ function likeClothingItem(req, res, next) {
     .orFail()
     .then((clothingItem) => res.send({ data: clothingItem }))
     .catch((err) => {
-      if (err.name == "CastError") {
+      if (err.name === "CastError") {
         return next(new BadRequestError(err.message));
       }
-      if (err.name == "DocumentNotFoundError") {
+      if (err.name === "DocumentNotFoundError") {
         return next(new DocumentNotFoundError(err.message));
       }
-      next(err);
+      return next(err);
     });
 }
 
@@ -79,13 +78,13 @@ function dislikeClothingItem(req, res, next) {
     .orFail()
     .then((clothingItem) => res.send({ data: clothingItem }))
     .catch((err) => {
-      if (err.name == "CastError") {
+      if (err.name === "CastError") {
         return next(new BadRequestError(err.message));
       }
-      if (err.name == "DocumentNotFoundError") {
+      if (err.name === "DocumentNotFoundError") {
         return next(new DocumentNotFoundError(err.message));
       }
-      next(err);
+      return next(err);
     });
 }
 

@@ -38,6 +38,9 @@ function createUser(req, res, next) {
       const userObj = user.toObject();
       delete userObj.password;
       res.status(201).send({
+        token: jwt.sign({ _id: user._id }, JWT_SECRET, {
+          expiresIn: "7d",
+        }),
         user: userObj,
       });
     })

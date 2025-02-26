@@ -5,8 +5,8 @@ const NotFoundError = require("../errors/not-found-err");
 const { createUser, login } = require("../controllers/users");
 const { validateLogin, validateUser } = require("../middlewares/validation");
 
-router.post("/signin", login, validateLogin);
-router.post("/signup", createUser, validateUser);
+router.post("/signin", validateLogin, login);
+router.post("/signup", validateUser, createUser);
 
 router.use("/items", clothingItemRouter);
 router.use("/users", userRouter);
